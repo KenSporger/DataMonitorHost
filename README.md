@@ -17,7 +17,7 @@
 
 ## 演示效果
 
-![DataMonitorHost.gif](https://i.loli.net/2021/05/28/ci7deuMAKkwPSf3.gif)
+![DataMonitorHost.gif](img/DataMonitorHost.gif)
 
 
 
