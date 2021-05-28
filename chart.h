@@ -59,11 +59,12 @@ public slots:
 private:
     QMap<QString, QSharedPointer<QSplineSeries>> series; // 添加的曲线系列
     QMap<QString, QSharedPointer<QSplineSeries>> active_series; // 激活显式的曲线系列
-    QMap<QString, QSharedPointer<QValueAxis>> axisYs; // 每个系列对应的纵轴
+    QMap<QString, QPair<qreal, qreal>> yRange; // 每个系列对应的纵轴范围
     QStringList titles;
-    QSharedPointer<QValueAxis> axisX; // 当前应用的横轴
-    QSharedPointer<QValueAxis> curAxisY; // 当前应用的纵轴
-    QSharedPointer<QValueAxis>  defaultAxisY;
+    QValueAxis* axisX; // 横轴
+    QValueAxis* axisY; // 纵轴
+    qreal default_maxY;
+    qreal default_minY;
     uint32_t cnt_x;
     uint32_t points_per_frame;
 };

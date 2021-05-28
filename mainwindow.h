@@ -65,7 +65,7 @@ private:
     DataPack data_pack;
     ParamPack param_pack;
     void frameProc(const QString& frame);
-    void ServerSendData(QByteArray& data);
+    void SendData(QByteArray& data);
 
 private slots://槽函数
     void ReadData();

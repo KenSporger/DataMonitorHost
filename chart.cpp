@@ -37,18 +37,23 @@
 Chart::Chart(QGraphicsItem *parent, Qt::WindowFlags wFlags):
     QChart(QChart::ChartTypeCartesian, parent, wFlags),
     axisX(new QValueAxis()),
-    defaultAxisY(new QValueAxis()),
-    cnt_x(0)
+    axisY(new QValueAxis()),
+    default_maxY(10),
+    default_minY(0),
+    cnt_x(0),
+    points_per_frame(31)
 {
+    setTitle("数据曲线");
+    legend()->hide();
+    setAnimationOptions(QChart::AllAnimations);
+
     // 初始化坐标轴
-    addAxis(axisX.get(),Qt::AlignBottom);
-    addAxis(defaultAxisY.get(),Qt::AlignLeft);
-    points_per_frame = 4;
+    addAxis(axisX, Qt::AlignBottom);
+    addAxis(axisY, Qt::AlignLeft);
     axisX->setTickCount(points_per_frame);
     axisX->setRange(0, points_per_frame-1);
     axisX->setVisible(false);
-    defaultAxisY->setRange(0, 10);
-    curAxisY = defaultAxisY;
+    axisY->setRange(default_minY, default_maxY);
 }
 
 Chart::~Chart()
@@ -59,57 +64,46 @@ Chart::~Chart()
 void Chart::createNewSerie(const QString& name, Qt::GlobalColor color, qreal min, qreal max)
 {
     auto s = new QSplineSeries(this);
-    auto y = new QValueAxis();
 
     QPen pen(color);
     pen.setWidth(3);
     s->setPen(pen);
 
-    y->setRange(min, max);
-
-    axisYs[name] = QSharedPointer<QValueAxis>(y);        // 新曲线未激活时不绑定任何Y轴
-    addAxis(y, Qt::AlignLeft);
-    y->setVisible(false);
     series[name] = QSharedPointer<QSplineSeries>(s);
     addSeries(s);
     s->setVisible(false);
-    s->attachAxis(axisX.get());
+    s->attachAxis(axisX);
+    s->attachAxis(axisY);
+
+    yRange[name] =qMakePair(min, max);
 }
 
 void Chart::updateAxisY()
 {
-    curAxisY->setVisible(false);                     // 隐藏原先的轴
-    for(auto &s : active_series)
-    {
-        s->detachAxis(curAxisY.get());               // 解绑
-    }
-    curAxisY = defaultAxisY;
+    QPair<int, int> r1 = qMakePair(default_minY, default_maxY);
     auto keys = active_series.keys();
-    for(int i = 0; i < keys.size(); i++)                // 找到最大范围的纵轴
+    for(int i = 0; i < keys.size(); i++)                // 找到最大范围
     {
-        if (i == 0 || axisYs[keys[i]]->max() > curAxisY->max()) curAxisY = axisYs[keys[i]];
+        auto& r2 = yRange[keys[i]];
+        r1.first = (i == 0 || r2.first < r1.first) ? r2.first : r1.first;
+        r1.second = (i == 0 || r2.second > r1.second) ? r2.second : r1.second;
     }
-    curAxisY->setVisible(true);
-    for(auto &s : active_series)
-    {
-        s->attachAxis(curAxisY.get());
-    }
+    axisY->setRange(r1.first, r1.second);
 }
 
 void Chart::enableSerie(const QString& name)
 {
     if (active_series.find(name) != active_series.end()) return;
-    active_series.insert(name, series[name]);
-    series[name]->setVisible(true);
-    series[name]->attachAxis(curAxisY.get());
+    auto iter = active_series.insert(name, series[name]);
+    (*iter)->setVisible(true);
     updateAxisY();
 }
 
 void Chart::disableSerie(const QString& name)
 {
-    if (active_series.find(name) == active_series.end()) return;
-    series[name]->setVisible(false);
-    series[name]->detachAxis(curAxisY.get());
+    auto iter = active_series.find(name);
+    if (iter == active_series.end()) return;
+    (*iter)->setVisible(false);
     active_series.remove(name);
     updateAxisY();
 }

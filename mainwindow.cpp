@@ -53,8 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //    showMaximized();
 
-    myChart.setTitle("数据曲线");
-    myChart.legend()->hide();
     myChart.createNewSerie("temp", Qt::red, 10, 50);
     myChart.createNewSerie("ax", Qt::black, -20000, 20000);
     myChart.createNewSerie("ay", Qt::blue, -20000, 20000);
@@ -65,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
     myChart.createNewSerie("pitch", Qt::yellow,  -180, 180);
     myChart.createNewSerie("roll", Qt::darkBlue, -180, 180);
     myChart.createNewSerie("yaw", Qt::darkGreen, -180, 180);
-    myChart.setAnimationOptions(QChart::AllAnimations);
     ui->chartWidget->setChart(&myChart);
     ui->chartWidget->setRenderHint(QPainter::Antialiasing);
 
@@ -318,7 +315,7 @@ void MainWindow::on_BtnClearRecv_clicked()
     ui->EditRecv->clear();
 }
 
-void MainWindow::ServerSendData(QByteArray& data)
+void MainWindow::SendData(QByteArray& data)
 {
     if (ui->radioClient->isChecked())
     {
@@ -356,7 +353,7 @@ void MainWindow::on_BtnSend_clicked()
         tba = HexStringToByteArray(data);
     else
         tba = data.toLatin1();
-    ServerSendData(tba);
+    SendData(tba);
 }
 
 void MainWindow::handleTimeout()
@@ -367,7 +364,7 @@ void MainWindow::handleTimeout()
         tba = HexStringToByteArray(data);
     else
         tba = data.toLatin1();
-    ServerSendData(tba);
+    SendData(tba);
 }
 
 void MainWindow::on_radioClient_clicked()
@@ -518,7 +515,7 @@ void MainWindow::on_load_param_clicked()
     obj["type"] = FrameType::CMD_PARAM_LOAD;
     QJsonDocument doc(obj);
     QByteArray bytes = doc.toJson(QJsonDocument::Compact);
-    ServerSendData(bytes);
+    SendData(bytes);
 }
 
 void MainWindow::on_update_param_clicked()
@@ -531,7 +528,7 @@ void MainWindow::on_update_param_clicked()
     obj["warning_time"] = ui->warning_time->value();
     QJsonDocument doc(obj);
     QByteArray bytes = doc.toJson(QJsonDocument::Compact);
-    ServerSendData(bytes);
+    SendData(bytes);
 }
 
 void MainWindow::on_uploadBtn_clicked()
@@ -544,7 +541,7 @@ void MainWindow::on_uploadBtn_clicked()
     obj["wifi_upload"] = status?1:0;
     QJsonDocument doc(obj);
     QByteArray bytes = doc.toJson(QJsonDocument::Compact);
-    ServerSendData(bytes);
+    SendData(bytes);
 }
 
 void MainWindow::on_checkTemp_stateChanged(int arg1)
