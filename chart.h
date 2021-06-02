@@ -51,10 +51,11 @@ public:
 
 public slots:
     void addNewPoint(const QString& name, qreal value);
-    void updateFrame();
+    uint8_t updateFrame(bool auto_scoll);
     void createNewSerie(const QString& name, Qt::GlobalColor color, qreal min, qreal max);
     void enableSerie(const QString& name);
     void disableSerie(const QString& name);
+    void updateAxisX(int beg);
 
 private:
     QMap<QString, QSharedPointer<QSplineSeries>> series; // 添加的曲线系列

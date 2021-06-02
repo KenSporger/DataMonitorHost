@@ -96,6 +96,7 @@ private slots://槽函数
 
     void handleTimeout();
     void on_chkTimerSend_stateChanged(int arg1);
+    void on_chartScrollBar_sliderMoved(int position);
 };
 
 #endif // MAINWINDOW_H

@@ -472,8 +472,19 @@ void MainWindow::frameProc(const QString& frame)
             myChart.addNewPoint("roll", data_pack.roll);
             myChart.addNewPoint("pitch", data_pack.pitch);
             myChart.addNewPoint("yaw", data_pack.yaw);
-            myChart.updateFrame();
-
+            // 根据滑动条位置显示指定区域
+            uint8_t scoll = myChart.updateFrame(false);
+            // 更新滑动条
+            if (ui->chartScrollBar->value() == ui->chartScrollBar->maximum())
+            {
+                ui->chartScrollBar->setMaximum(ui->chartScrollBar->maximum() + scoll);
+                ui->chartScrollBar->setValue(ui->chartScrollBar->value() + scoll);
+                myChart.updateAxisX(ui->chartScrollBar->value());
+            }
+            else
+            {
+                ui->chartScrollBar->setMaximum(ui->chartScrollBar->maximum() + scoll);
+            }
 
             ui->ax->setText(QString::number(data_pack.ax));
             ui->ay->setText(QString::number(data_pack.ay));
@@ -597,4 +608,10 @@ void MainWindow::on_checkYaw_stateChanged(int arg1)
 void MainWindow::on_chkTimerSend_stateChanged(int arg1)
 {
     arg1?m_timer.start():m_timer.stop();
+}
+
+
+void MainWindow::on_chartScrollBar_sliderMoved(int position)
+{
+    myChart.updateAxisX(position);
 }

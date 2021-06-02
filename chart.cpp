@@ -41,7 +41,7 @@ Chart::Chart(QGraphicsItem *parent, Qt::WindowFlags wFlags):
     default_maxY(10),
     default_minY(0),
     cnt_x(0),
-    points_per_frame(31)
+    points_per_frame(4)
 {
     setTitle("数据曲线");
     legend()->hide();
@@ -113,11 +113,19 @@ void Chart::addNewPoint(const QString& name, qreal value)
     series[name]->append(cnt_x, value);
 }
 
-void Chart::updateFrame()
+uint8_t Chart::updateFrame(bool auto_scoll=true)
 {
     if (cnt_x >= points_per_frame)
     {
-        axisX->setRange(cnt_x-points_per_frame+1, cnt_x);
+        cnt_x++;
+        if (auto_scoll) axisX->setRange(cnt_x-points_per_frame+1, cnt_x);
+        return 1;
     }
     cnt_x++;
+    return 0;
+}
+
+void Chart::updateAxisX(int beg)
+{
+    axisX->setRange(beg, beg + points_per_frame - 1);
 }
